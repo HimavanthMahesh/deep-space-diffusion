@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deep Space Diffusion</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="space-container">
+    <canvas id="starfield"></canvas>
+    <canvas id="dustfield"></canvas>
+
+    <div id="interactive-objects">
+      <!-- Interactive objects will go here -->
+    </div>
+
+    <!-- Intro Instructions Screen -->
+    <div id="intro-screen">
+      <div class="intro-content">
+        <h1 class="intro-title">Deep Space Diffusion</h1>
+        <p class="intro-text">
+          Welcome to the cosmic simulation. By clicking on celestial objects throughout this space—such as planets,
+          comets, black holes, and colliding galaxies—you will initialize our custom-trained visual diffusion model
+          (trained on a 6GB custom astronomical dataset) to generate unique imagery!
+        </p>
+        <button id="enter-universe-btn">Explore the Cosmos</button>
+      </div>
+    </div>
+
+    <!-- Generation Modal -->
+    <div id="generation-modal" class="hidden">
+      <div class="modal-content">
+        <h2 id="modal-title">Initializing Deep Space Diffusion</h2>
+        <div class="loader">
+          <div class="core"></div>
+          <div class="ring"></div>
+        </div>
+        <p id="modal-status">Gathering stellar mass...</p>
+
+        <div id="result-container" class="hidden">
+          <div class="result-placeholder" id="model-output">Simulated Model Output</div>
+          <button id="close-modal">Return to Space</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+
+</html>
