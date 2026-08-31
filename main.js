@@ -491,6 +491,8 @@ const STATUS_MESSAGES = [
 
 async function openModal(obj) {
     previouslyFocused = document.activeElement;
+    modal.inert = false;
+    modal.setAttribute('aria-hidden', 'false');
     modal.classList.remove('hidden');
     resultContainer.classList.add('hidden');
     loader.style.display = 'flex';
@@ -540,6 +542,8 @@ async function openModal(obj) {
 
 function closeGenerationModal() {
     modal.classList.add('hidden');
+    modal.inert = true;
+    modal.setAttribute('aria-hidden', 'true');
     if (previouslyFocused && document.contains(previouslyFocused)) {
         previouslyFocused.focus();
     }
@@ -559,4 +563,5 @@ const enterBtn = document.getElementById('enter-universe-btn');
 
 enterBtn.addEventListener('click', () => {
     introScreen.classList.add('hidden');
+    introScreen.inert = true;
 });
