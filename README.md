@@ -109,7 +109,7 @@ GitHub Actions also compiles the Python entry points and runs the tests on every
 
 The training workflow uses the `Supermaxman/esa-hubble` dataset and filters it to nebulae, galaxies, quasars and black holes, cosmology, and star clusters. Source imagery and generated model weights are not committed to this repository.
 
-Users are responsible for reviewing the source dataset, image, and base-model licenses before reproducing or redistributing derived artifacts. The repository's MIT License covers original project code only; it does not relicense datasets, pretrained models, or third-party training scripts.
+Users are responsible for reviewing the source dataset, image, and base-model licenses before reproducing or redistributing derived artifacts. No repository license has been selected yet; the project contributors should agree on one before granting reuse rights. Any future code license would not relicense datasets, pretrained models, or third-party training scripts.
 
 ## Current limitations
 
@@ -130,4 +130,4 @@ Users are responsible for reviewing the source dataset, image, and base-model li
 
 ## License
 
-Original project code is available under the MIT License. External data, models, and tooling retain their own licenses and terms.
+No license has been selected. Because this was a team project, contributors should agree on licensing before one is added. External data, models, and tooling retain their own licenses and terms.
