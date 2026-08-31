@@ -128,6 +128,12 @@ Users are responsible for reviewing the source dataset, image, and base-model li
 - Add endpoint authentication and rate limiting
 - Deploy a stable public demo
 
+## Team and contributions
+
+Deep Space Diffusion was created by Himavanth Mahesh and Denver Soekawan for HackIllinois 2026.
+
+Himavanth contributed the project concept, frontend experience, training-data discovery, and direction for the model-training workflow. Denver Soekawan is the author of the repository's original public commit. The remaining implementation split is not documented here rather than inferred without both contributors' confirmation.
+
 ## License
 
 No license has been selected. Because this was a team project, contributors should agree on licensing before one is added. External data, models, and tooling retain their own licenses and terms.
