@@ -203,6 +203,19 @@ animate();
 // Interactive Objects Logic
 const objectsContainer = document.getElementById('interactive-objects');
 
+function makeKeyboardInteractive(element, label, activate) {
+    element.setAttribute('role', 'button');
+    element.setAttribute('tabindex', '0');
+    element.setAttribute('aria-label', `Generate an image for ${label}`);
+    element.addEventListener('click', activate);
+    element.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            activate();
+        }
+    });
+}
+
 // Helper to create objects
 function spawnObject(type, name, image, size, x, y, extraClass = '') {
     const el = document.createElement('div');
@@ -224,9 +237,7 @@ function spawnObject(type, name, image, size, x, y, extraClass = '') {
         el.appendChild(img);
     }
 
-    el.addEventListener('click', () => {
-        openModal({ name: name });
-    });
+    makeKeyboardInteractive(el, name, () => openModal({ name }));
 
     objectsContainer.appendChild(el);
 }
@@ -334,12 +345,10 @@ for (let i = 0; i < 3; i++) {
     spawnCollidingGalaxies(i, Math.random() * 80 + 10, Math.random() * 80 + 10);
 }
 
-// 3. Multiple scattered planets (Bigger and varied!)
-const planetImgs = ['assets/planet.png', 'assets/planet2.png', 'assets/planet3.png', 'assets/planet4.png'];
+// 3. Multiple scattered CSS-rendered planets
 for (let i = 0; i < 12; i++) {
-    const img = planetImgs[Math.floor(Math.random() * planetImgs.length)];
     // Sized between 15px and 35px to be clearly larger than stars
-    spawnObject('planet', `Exoplanet System ${i + 1}`, img, Math.random() * 20 + 15, Math.random() * 100, Math.random() * 100);
+    spawnObject('planet', `Exoplanet System ${i + 1}`, null, Math.random() * 20 + 15, Math.random() * 100, Math.random() * 100);
 }
 
 // 4. Subtle, pure CSS black holes (no images)
@@ -350,7 +359,7 @@ for (let i = 0; i < 4; i++) {
 
 // 5. Tiny distant failed galaxies
 for (let i = 0; i < 6; i++) {
-    spawnObject('failed', `Failed Galaxy Formation ${i + 1}`, 'assets/failed.png', Math.random() * 60 + 30, Math.random() * 100, Math.random() * 100);
+    spawnObject('failed', `Failed Galaxy Formation ${i + 1}`, null, Math.random() * 60 + 30, Math.random() * 100, Math.random() * 100);
 }
 
 // 5.5. Clickable Larger Bright Stars
