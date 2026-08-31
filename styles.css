@@ -614,3 +614,37 @@ button:hover {
   box-shadow: 0 6px 25px rgba(170, 0, 255, 0.5);
   background: linear-gradient(135deg, #00d4ff, #bb33ff);
 }
+
+@media (max-width: 640px) {
+  .intro-content,
+  .modal-content {
+    width: calc(100% - 2rem);
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .intro-title {
+    font-size: 1.65rem;
+  }
+
+  .intro-text,
+  p {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  #enter-universe-btn,
+  button {
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .loader {
+    width: 90px;
+    height: 90px;
+  }
+}
