@@ -358,11 +358,6 @@ for (let i = 0; i < 15; i++) {
     spawnObject('clickable-star', `Bright Star ${i + 1}`, null, Math.random() * 4 + 3, Math.random() * 100, Math.random() * 100);
 }
 
-// 5.5. Clickable Larger Bright Stars
-for (let i = 0; i < 15; i++) {
-    spawnObject('clickable-star', `Bright Star ${i + 1}`, null, Math.random() * 4 + 3, Math.random() * 100, Math.random() * 100);
-}
-
 // 6. Asteroid System
 const asteroids = [];
 for (let i = 0; i < 15; i++) {
@@ -473,6 +468,7 @@ const modalStatus = document.getElementById('modal-status');
 const loader = document.querySelector('.loader');
 const resultContainer = document.getElementById('result-container');
 const modelOutput = document.getElementById('model-output');
+let previouslyFocused = null;
 
 const STATUS_MESSAGES = [
     'Gathering stellar mass and light data...',
@@ -485,11 +481,13 @@ const STATUS_MESSAGES = [
 ];
 
 async function openModal(obj) {
+    previouslyFocused = document.activeElement;
     modal.classList.remove('hidden');
     resultContainer.classList.add('hidden');
     loader.style.display = 'flex';
     modelOutput.replaceChildren();
     modelOutput.style.aspectRatio = '16 / 9';
+    closeModalBtn.focus();
 
     const prompt = getPromptForObject(obj.name);
     modalTitle.textContent = `Diffusing: ${obj.name}`;
@@ -531,8 +529,19 @@ async function openModal(obj) {
     }
 }
 
-closeModalBtn.addEventListener('click', () => {
+function closeGenerationModal() {
     modal.classList.add('hidden');
+    if (previouslyFocused && document.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+    }
+}
+
+closeModalBtn.addEventListener('click', closeGenerationModal);
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeGenerationModal();
+    }
 });
 
 // Intro Screen Logic
