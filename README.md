@@ -1,49 +1,130 @@
 # Deep Space Diffusion
 
-An interactive cosmic experience that lets you drift through space and generate AI images of celestial objects — black holes, comets, galaxy collisions, and more — using a custom fine-tuned diffusion model trained on real ESA Hubble telescope imagery.
+An interactive generative-AI experience that lets users explore a browser-based starfield and generate celestial imagery with a custom Stable Diffusion XL LoRA model trained on curated ESA Hubble images.
 
 Built at HackIllinois 2026.
 
-## Demo
+![Example generated kilonova](kilonova.png)
 
-Click any celestial object in the interactive starfield to trigger the model and generate a unique astronomical image.
+## Why this project matters
 
-## How It Works
+Deep Space Diffusion connects the full applied-ML workflow: dataset preparation, parameter-efficient model fine-tuning, GPU deployment, API inference, and an interactive frontend. It demonstrates how a generative model can be turned into a usable experience rather than remaining an isolated notebook.
 
-1. **Dataset** — Curated 1,800+ images from a raw set of 2,700+ ESA Hubble photographs, filtering by resolution and adding prompt captions
-2. **Training** — Fine-tuned Stable Diffusion XL using Dreambooth LoRA on Modal's GPU cloud infrastructure (500 steps)
-3. **Inference** — Trained model is deployed as a live REST API endpoint on Modal
-4. **Frontend** — Interactive animated starfield built with HTML/CSS/JS; each clickable object maps to a contextual prompt sent to the model
+## Architecture
 
-## Tech Stack
+```text
+ESA Hubble dataset
+        |
+        v
+filtering, resizing, and prompt captions
+        |
+        v
+SDXL DreamBooth LoRA training on Modal A100
+        |
+        v
+persistent LoRA weights and model cache
+        |
+        v
+Modal A10G inference endpoint
+        |
+        v
+local Python proxy
+        |
+        v
+interactive HTML/CSS/JavaScript starfield
+```
 
-- [Stable Diffusion XL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) + Dreambooth LoRA
-- [Modal](https://modal.com) — serverless GPU training and inference
-- [Diffusers](https://github.com/huggingface/diffusers) — model training and inference pipeline
-- Vanilla HTML/CSS/JS frontend
-- Python proxy server (CORS handling)
+## How it works
 
-## Setup
+1. `prepare_dataset` downloads the ESA Hubble dataset, selects relevant categories, removes undersized images, resizes them for SDXL, and writes scientific prompt captions.
+2. `train` fine-tunes SDXL with DreamBooth LoRA for 500 steps and stores the adapter in a persistent Modal volume.
+3. `CosmicHorrorGenerator` loads the base model and LoRA adapter on an A10G GPU and exposes image generation through a Modal endpoint.
+4. `server.py` serves the static frontend and proxies generation requests without exposing deployment configuration in browser code.
+5. The frontend maps interactive celestial objects to contextual generation prompts and renders the returned image.
+
+## Technical details
+
+- Base model: Stable Diffusion XL 1.0
+- Adaptation: DreamBooth LoRA, rank 16
+- Training resolution: 1024 x 1024
+- Training budget: 500 steps, batch size 1, gradient accumulation 4
+- Training GPU: Modal A100
+- Inference GPU: Modal A10G
+- Frontend: vanilla HTML, CSS, Canvas, and JavaScript
+- Backend: Python standard-library proxy and Modal web endpoint
+
+## Project structure
+
+```text
+.
+├── cosmic_horror.py      # Dataset preparation, training, and cloud inference
+├── server.py             # Static server and generation proxy
+├── index.html            # Interactive application shell
+├── main.js               # Starfield, interactions, and API client
+├── styles.css            # Visual design and animation
+├── kilonova.png          # Representative generated output
+├── tests/                # Lightweight proxy tests
+└── .github/workflows/    # Automated validation
+```
+
+## Run locally
 
 ### Prerequisites
 
-- Python 3.10+
-- A [Modal](https://modal.com) account with a deployed endpoint
+- Python 3.10 or later
+- A Modal account
+- A configured Hugging Face secret in Modal
 
-### Run Locally
+### Install and deploy
 
 ```bash
-pip install modal diffusers torch transformers accelerate
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 modal deploy cosmic_horror.py
-python3 server.py
 ```
 
-Then open `http://localhost:8080` in your browser.
+Copy the deployed `generate_web` endpoint and configure the proxy:
 
-## Dataset
+```bash
+export MODAL_URL="https://your-modal-endpoint.modal.run"
+python server.py
+```
 
-Images sourced from the [ESA Hubble Space Telescope archive](https://esahubble.org/images/). All images are used for research and educational purposes.
+Then visit `http://localhost:8080`.
 
-## Team
+## Validation
 
-Built at HackIllinois 2026.
+The repository includes lightweight tests for endpoint configuration, prompt encoding, default behavior, and input-length validation.
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions also compiles the Python entry points and runs the tests on every push and pull request.
+
+## Dataset and model notes
+
+The training workflow uses the `Supermaxman/esa-hubble` dataset and filters it to nebulae, galaxies, quasars and black holes, cosmology, and star clusters. Source imagery and generated model weights are not committed to this repository.
+
+Users are responsible for reviewing the source dataset, image, and base-model licenses before reproducing or redistributing derived artifacts. The repository's MIT License covers original project code only; it does not relicense datasets, pretrained models, or third-party training scripts.
+
+## Current limitations
+
+- The repository does not include quantitative model-quality evaluation or a held-out comparison against base SDXL.
+- The training script is downloaded from the upstream Diffusers branch during image construction and should be pinned to a tested revision for long-term reproducibility.
+- A publicly reachable inference endpoint should add authentication, rate limiting, and cost controls before production use.
+- The browser experience is a hackathon prototype and has not yet been tested for accessibility or broad device compatibility.
+
+## Next steps
+
+- Add matched-prompt comparisons between base SDXL and the fine-tuned LoRA
+- Record training loss, latency, and approximate inference cost
+- Add a gallery of representative outputs and failure cases
+- Pin the Diffusers training script to a tested revision
+- Add endpoint authentication and rate limiting
+- Deploy a stable public demo
+
+## License
+
+Original project code is available under the MIT License. External data, models, and tooling retain their own licenses and terms.

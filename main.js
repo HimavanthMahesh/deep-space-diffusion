@@ -165,7 +165,7 @@ function drawDust() {
         let dist = Math.sqrt(distX * distX + distY * distY);
         let maxDist = 300; // Radius of cursor disturbance
 
-        if (dist < maxDist) {
+        if (dist > 0 && dist < maxDist) {
             let force = (maxDist - dist) / maxDist;
             p.dx += (distX / dist) * force * 2.5; // Stronger push away from cursor
             p.dy += (distY / dist) * force * 2.5;
@@ -488,7 +488,7 @@ async function openModal(obj) {
     modal.classList.remove('hidden');
     resultContainer.classList.add('hidden');
     loader.style.display = 'flex';
-    modelOutput.innerHTML = '';
+    modelOutput.replaceChildren();
     modelOutput.style.aspectRatio = '16 / 9';
 
     const prompt = getPromptForObject(obj.name);
@@ -506,7 +506,10 @@ async function openModal(obj) {
         const response = await fetch(url);
         clearInterval(statusInterval);
 
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(errorBody.error || `Server error: ${response.status}`);
+        }
 
         const data = await response.json();
         const img = document.createElement('img');
@@ -521,7 +524,7 @@ async function openModal(obj) {
     } catch (err) {
         clearInterval(statusInterval);
         loader.style.display = 'none';
-        modalStatus.textContent = `Generation failed — check the console.`;
+        modalStatus.textContent = 'Generation could not be completed.';
         modelOutput.textContent = err.message;
         console.error('Modal API error:', err);
         resultContainer.classList.remove('hidden');

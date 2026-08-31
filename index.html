@@ -12,8 +12,8 @@
 
 <body>
   <div id="space-container">
-    <canvas id="starfield"></canvas>
-    <canvas id="dustfield"></canvas>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <canvas id="dustfield" aria-hidden="true"></canvas>
 
     <div id="interactive-objects">
       <!-- Interactive objects will go here -->
@@ -33,14 +33,14 @@
     </div>
 
     <!-- Generation Modal -->
-    <div id="generation-modal" class="hidden">
+    <div id="generation-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-content">
         <h2 id="modal-title">Initializing Deep Space Diffusion</h2>
         <div class="loader">
           <div class="core"></div>
           <div class="ring"></div>
         </div>
-        <p id="modal-status">Gathering stellar mass...</p>
+        <p id="modal-status" aria-live="polite">Gathering stellar mass...</p>
 
         <div id="result-container" class="hidden">
           <div class="result-placeholder" id="model-output">Simulated Model Output</div>
