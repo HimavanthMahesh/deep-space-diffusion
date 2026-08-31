@@ -1,6 +1,4 @@
 import modal
-import io
-import os
 
 app = modal.App("cosmic-horror-sdxl")
 
@@ -51,6 +49,7 @@ COSMIC_HORROR_CATEGORIES = [
 
 # The trigger word the model will learn to associate with your cosmic imagery
 INSTANCE_PROMPT = "cosmichorror, scientifically accurate space photograph, hubble telescope"
+MAX_PROMPT_LENGTH = 500
 
 
 # ─────────────────────────────────────────────
@@ -96,16 +95,22 @@ def prepare_dataset():
             if image.width < 512 or image.height < 512:
                 continue
 
-            # Resize to 1024x1024 for SDXL compatibility
-            image = image.resize((1024, 1024))
+            # Crop without stretching, then resize for SDXL compatibility.
+            from PIL import Image, ImageOps
+
+            image = ImageOps.fit(
+                image.convert("RGB"),
+                (1024, 1024),
+                method=Image.Resampling.LANCZOS,
+            )
 
             # Save image
             img_path = f"{images_dir}/{item_id}.jpg"
             image.save(img_path, "JPEG", quality=95)
 
             # Save caption alongside image (same filename, .txt extension)
-            # Dreambooth prepends the instance prompt automatically,
-            # but we also embed the scientific description for richer training
+            # Retain a scientific sidecar caption for future caption-aware
+            # training. The current DreamBooth command uses INSTANCE_PROMPT.
             caption = f"{INSTANCE_PROMPT}, {description[:300]}"
             caption_path = f"{images_dir}/{item_id}.txt"
             with open(caption_path, "w") as f:
@@ -255,6 +260,12 @@ class CosmicHorrorGenerator:
     def generate(self, prompt: str, steps: int = 30, guidance_scale: float = 7.5):
         import io
 
+        prompt = prompt.strip()
+        if not prompt:
+            prompt = "deep space nebula"
+        if len(prompt) > MAX_PROMPT_LENGTH:
+            raise ValueError(f"Prompt must be {MAX_PROMPT_LENGTH} characters or fewer")
+
         # Always prepend the trigger word
         full_prompt = f"cosmichorror, {prompt}, scientifically accurate, hubble telescope, photorealistic"
         negative_prompt = "cartoon, fantasy, painting, illustration, low quality, blurry, cheerful, colorful, unrealistic"
@@ -278,6 +289,15 @@ class CosmicHorrorGenerator:
     def generate_web(self, prompt: str = "deep space nebula"):
         import base64, io
         from fastapi.responses import JSONResponse
+
+        prompt = prompt.strip()
+        if not prompt:
+            prompt = "deep space nebula"
+        if len(prompt) > MAX_PROMPT_LENGTH:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Prompt must be {MAX_PROMPT_LENGTH} characters or fewer"},
+            )
 
         full_prompt = f"cosmichorror, {prompt}, scientifically accurate, hubble telescope, photorealistic"
         negative_prompt = "cartoon, fantasy, painting, illustration, low quality, blurry, cheerful, colorful, unrealistic"

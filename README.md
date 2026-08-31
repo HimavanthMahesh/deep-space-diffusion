@@ -36,7 +36,7 @@ interactive HTML/CSS/JavaScript starfield
 
 ## How it works
 
-1. `prepare_dataset` downloads the ESA Hubble dataset, selects relevant categories, removes undersized images, resizes them for SDXL, and writes scientific prompt captions.
+1. `prepare_dataset` downloads the ESA Hubble dataset, selects relevant categories, removes undersized images, crops without stretching, resizes for SDXL, and preserves scientific sidecar captions.
 2. `train` fine-tunes SDXL with DreamBooth LoRA for 500 steps and stores the adapter in a persistent Modal volume.
 3. `CosmicHorrorGenerator` loads the base model and LoRA adapter on an A10G GPU and exposes image generation through a Modal endpoint.
 4. `server.py` serves the static frontend and proxies generation requests without exposing deployment configuration in browser code.
@@ -75,12 +75,14 @@ interactive HTML/CSS/JavaScript starfield
 - A Modal account
 - A configured Hugging Face secret in Modal
 
-### Install and deploy
+### Install, train, and deploy
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+modal run cosmic_horror.py::prepare_dataset
+modal run cosmic_horror.py::train
 modal deploy cosmic_horror.py
 ```
 
@@ -112,6 +114,7 @@ Users are responsible for reviewing the source dataset, image, and base-model li
 ## Current limitations
 
 - The repository does not include quantitative model-quality evaluation or a held-out comparison against base SDXL.
+- Scientific sidecar captions are preserved during dataset preparation, but the current DreamBooth command trains with the shared instance prompt rather than consuming those captions.
 - The training script is downloaded from the upstream Diffusers branch during image construction and should be pinned to a tested revision for long-term reproducibility.
 - A publicly reachable inference endpoint should add authentication, rate limiting, and cost controls before production use.
 - The browser experience is a hackathon prototype and has not yet been tested for accessibility or broad device compatibility.
